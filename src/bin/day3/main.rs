@@ -6,13 +6,10 @@ fn main() {
     let line_length = input.lines().next().unwrap().len();
     let mut gamma_rate: u32 = 0;
     for i in 0..line_length {
-        let acc: i32 = input.lines().map(|bits| bits.chars().skip(i).next().unwrap()).fold(0, |acc, bit| {
-            if bit == '1' {
-                acc + 1
-            } else {
-                acc - 1
-            }
-        });
+        let acc: i32 = input
+            .lines()
+            .map(|bits| bits.chars().skip(i).next().unwrap())
+            .fold(0, |acc, bit| if bit == '1' { acc + 1 } else { acc - 1 });
         gamma_rate <<= 1;
         if acc > 0 {
             gamma_rate |= 1;
@@ -25,7 +22,6 @@ fn main() {
     let epsilon_rate = gamma_rate ^ xor_mask;
     println!("Epsilon rate: {}", epsilon_rate);
     println!("Part 1: {}", gamma_rate * epsilon_rate);
-
 
     let line_length = input.lines().next().unwrap().len();
 
@@ -45,11 +41,20 @@ fn main() {
                 }
                 break 'outer;
             }
-            let count_ones = input_copy.iter().filter(|bits| bits.chars().nth(i) == Some('1')).count();
+            let count_ones = input_copy
+                .iter()
+                .filter(|bits| bits.chars().nth(i) == Some('1'))
+                .count();
             if count_ones >= (input_copy.len() + 1) / 2 {
-                input_copy = input_copy.into_iter().filter(|bits| bits.chars().nth(i) == Some('1')).collect();
+                input_copy = input_copy
+                    .into_iter()
+                    .filter(|bits| bits.chars().nth(i) == Some('1'))
+                    .collect();
             } else {
-                input_copy = input_copy.into_iter().filter(|bits| bits.chars().nth(i) == Some('0')).collect();
+                input_copy = input_copy
+                    .into_iter()
+                    .filter(|bits| bits.chars().nth(i) == Some('0'))
+                    .collect();
             }
         }
     }
@@ -71,11 +76,20 @@ fn main() {
                 }
                 break 'outer;
             }
-            let count_ones = input_copy.iter().filter(|bits| bits.chars().nth(i) == Some('1')).count();
+            let count_ones = input_copy
+                .iter()
+                .filter(|bits| bits.chars().nth(i) == Some('1'))
+                .count();
             if count_ones < (input_copy.len() + 1) / 2 {
-                input_copy = input_copy.into_iter().filter(|bits| bits.chars().nth(i) == Some('1')).collect();
+                input_copy = input_copy
+                    .into_iter()
+                    .filter(|bits| bits.chars().nth(i) == Some('1'))
+                    .collect();
             } else {
-                input_copy = input_copy.into_iter().filter(|bits| bits.chars().nth(i) == Some('0')).collect();
+                input_copy = input_copy
+                    .into_iter()
+                    .filter(|bits| bits.chars().nth(i) == Some('0'))
+                    .collect();
             }
         }
     }

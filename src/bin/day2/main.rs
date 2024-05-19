@@ -10,16 +10,16 @@ fn main() {
             command if command.contains("forward") => {
                 let val: String = command.chars().filter(|c| c.is_numeric()).collect();
                 distance += val.parse::<u32>().unwrap();
-            },
+            }
             command if command.contains("down") => {
                 let val: String = command.chars().filter(|c| c.is_numeric()).collect();
                 depth += val.parse::<u32>().unwrap();
-            },
+            }
             command if command.contains("up") => {
                 let val: String = command.chars().filter(|c| c.is_numeric()).collect();
                 depth -= val.parse::<u32>().unwrap();
-            },
-            _ => panic!()
+            }
+            _ => panic!(),
         }
     }
     println!("Part 1: {}", distance * depth);
@@ -34,16 +34,16 @@ fn main() {
                 let val: u32 = val.parse().unwrap();
                 distance += val;
                 depth += aim * val;
-            },
+            }
             command if command.contains("down") => {
                 let val: String = command.chars().filter(|c| c.is_numeric()).collect();
                 aim += val.parse::<u32>().unwrap();
-            },
+            }
             command if command.contains("up") => {
                 let val: String = command.chars().filter(|c| c.is_numeric()).collect();
                 aim -= val.parse::<u32>().unwrap();
-            },
-            _ => panic!()
+            }
+            _ => panic!(),
         }
     }
     println!("Part 2: {}", distance * depth);

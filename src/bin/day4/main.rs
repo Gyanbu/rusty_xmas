@@ -1,7 +1,7 @@
 use rusty_xmas;
 
 fn calculate_score(board: &Vec<Vec<u32>>, num: u32) -> u32 {
-    println!("{} -> {:?}", num ,board);
+    println!("{} -> {:?}", num, board);
     let mut score = 0;
     for vec in board {
         for val in vec {
@@ -13,15 +13,22 @@ fn calculate_score(board: &Vec<Vec<u32>>, num: u32) -> u32 {
 
 fn main() {
     let input = rusty_xmas::load_input!();
-    
+
     let mut input_iter = input.lines();
     let bingo_numbers = input_iter.by_ref().next().unwrap();
-    let bingo_numbers: Vec<u32> = bingo_numbers.trim().split(',').map(|num| num.parse().unwrap()).collect();
+    let bingo_numbers: Vec<u32> = bingo_numbers
+        .trim()
+        .split(',')
+        .map(|num| num.parse().unwrap())
+        .collect();
     println!("Bingo numbers: {:?}", bingo_numbers);
 
     let mut horizontal_boards: Vec<Vec<Vec<u32>>> = Vec::new();
     let mut vertical_boards: Vec<Vec<Vec<u32>>> = Vec::new();
-    let input_iter: Vec<u32> = input_iter.skip(1).collect::<Vec<&str>>().into_iter()
+    let input_iter: Vec<u32> = input_iter
+        .skip(1)
+        .collect::<Vec<&str>>()
+        .into_iter()
         .map(|str| str.split_whitespace())
         .flatten()
         .map(|num| num.parse::<u32>().unwrap())
@@ -49,7 +56,7 @@ fn main() {
                     row.remove(val_i);
                     if row.is_empty() {
                         score = calculate_score(&horizontal_boards[i], *num);
-                        break 'outer
+                        break 'outer;
                     }
                 }
             }
@@ -61,7 +68,7 @@ fn main() {
                     col.remove(val_i);
                     if col.is_empty() {
                         score = calculate_score(&vertical_boards[i], *num);
-                        break 'outer
+                        break 'outer;
                     }
                 }
             }
@@ -72,7 +79,10 @@ fn main() {
     let input_iter = input.lines().skip(1);
     let mut horizontal_boards: Vec<Vec<Vec<u32>>> = Vec::new();
     let mut vertical_boards: Vec<Vec<Vec<u32>>> = Vec::new();
-    let input_iter: Vec<u32> = input_iter.skip(1).collect::<Vec<&str>>().into_iter()
+    let input_iter: Vec<u32> = input_iter
+        .skip(1)
+        .collect::<Vec<&str>>()
+        .into_iter()
         .map(|str| str.split_whitespace())
         .flatten()
         .map(|num| num.parse::<u32>().unwrap())
@@ -102,7 +112,7 @@ fn main() {
                         if horizontal_boards[i][row_i].is_empty() {
                             if horizontal_boards.len() == 1 {
                                 score = calculate_score(&horizontal_boards[0], *num);
-                                break 'outer
+                                break 'outer;
                             }
                             horizontal_boards.remove(i);
                             vertical_boards.remove(i);
@@ -119,7 +129,7 @@ fn main() {
                         if vertical_boards[i][col_i].is_empty() {
                             if vertical_boards.len() == 1 {
                                 score = calculate_score(&vertical_boards[0], *num);
-                                break 'outer
+                                break 'outer;
                             }
                             vertical_boards.remove(i);
                             horizontal_boards.remove(i);

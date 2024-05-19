@@ -12,7 +12,11 @@ fn _print_board(board: &Vec<Vec<u8>>) {
     }
 }
 
-fn get_neigbors(board: &Vec<Vec<u8>>, x: usize, y: usize) -> impl Iterator<Item = (usize, usize)> + '_ {
+fn get_neigbors(
+    board: &Vec<Vec<u8>>,
+    x: usize,
+    y: usize,
+) -> impl Iterator<Item = (usize, usize)> + '_ {
     const NEIGHBORS: [(i32, i32); 4] = [(0, 1), (1, 0), (0, -1), (-1, 0)];
 
     let width = board[0].len() as i32;
@@ -25,7 +29,7 @@ fn get_neigbors(board: &Vec<Vec<u8>>, x: usize, y: usize) -> impl Iterator<Item 
             Some((nx as usize, ny as usize))
         } else {
             None
-        } 
+        }
     })
 }
 
@@ -51,7 +55,11 @@ fn get_basin_size(board: &Vec<Vec<u8>>, lowest_point: (usize, usize)) -> u32 {
     }
 
     // _print_board(&board_mask);
-    let basin_size = board_mask.iter().flatten().filter(|cell| cell == &&1).count();
+    let basin_size = board_mask
+        .iter()
+        .flatten()
+        .filter(|cell| cell == &&1)
+        .count();
     basin_size as u32
 }
 
@@ -64,7 +72,12 @@ fn main() {
 
     let mut board: Vec<Vec<u8>> = vec![vec![0; width]; height];
     for (y, row) in input.lines().enumerate() {
-        for (x, num) in row.trim().chars().map(|char| char.to_digit(10).unwrap() as u8).enumerate() {
+        for (x, num) in row
+            .trim()
+            .chars()
+            .map(|char| char.to_digit(10).unwrap() as u8)
+            .enumerate()
+        {
             board[y][x] = num;
         }
     }
@@ -86,7 +99,6 @@ fn main() {
     }
     println!("Part 1: {}", risk_level);
 
-
     let mut basins: Vec<u32> = Vec::with_capacity(low_points.len());
     for point in low_points {
         let basin_size = get_basin_size(&board, point);
@@ -94,5 +106,8 @@ fn main() {
     }
     basins.sort();
     // println!("{}, {}. {}", basins[basins.len() - 1], basins[basins.len() - 2], basins[basins.len() - 3]);
-    println!("part 2: {}", basins[basins.len() - 1] * basins[basins.len() - 2] * basins[basins.len() - 3]);
+    println!(
+        "part 2: {}",
+        basins[basins.len() - 1] * basins[basins.len() - 2] * basins[basins.len() - 3]
+    );
 }

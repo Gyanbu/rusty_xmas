@@ -14,9 +14,8 @@ fn main() {
     }
     println!("Part 1: {}", increments);
 
-    
     let data: Vec<u32> = input.lines().map(|x| x.parse().unwrap()).collect();
-    
+
     let mut previous_windows_sum: u32 = data.iter().take(3).sum();
     let mut increments: u32 = 0;
     for i in 1..=data.len() - 3 {

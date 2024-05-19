@@ -2,7 +2,12 @@ use rusty_xmas;
 
 fn main() {
     let input = rusty_xmas::load_input!();
-    let mut fishes: Vec<u8> = input.trim().chars().filter(|char| char.is_numeric()).map(|int| int.to_digit(10).unwrap() as u8).collect();
+    let mut fishes: Vec<u8> = input
+        .trim()
+        .chars()
+        .filter(|char| char.is_numeric())
+        .map(|int| int.to_digit(10).unwrap() as u8)
+        .collect();
     println!("Input: {:?}", fishes);
 
     for _ in 0..80 {
@@ -22,8 +27,12 @@ fn main() {
     }
     println!("Part 1: {}", fishes.len());
 
-
-    let fishes: Vec<u8> = input.trim().chars().filter(|char| char.is_numeric()).map(|int| int.to_digit(10).unwrap() as u8).collect();
+    let fishes: Vec<u8> = input
+        .trim()
+        .chars()
+        .filter(|char| char.is_numeric())
+        .map(|int| int.to_digit(10).unwrap() as u8)
+        .collect();
     let mut fish_tape: [u64; 9] = [0; 9];
     for fish in fishes {
         fish_tape[fish as usize] += 1;
