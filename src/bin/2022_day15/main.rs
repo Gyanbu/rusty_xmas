@@ -1,4 +1,3 @@
-use rusty_xmas;
 use std::collections::HashSet;
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
@@ -63,12 +62,14 @@ struct Cave {
 }
 
 impl Cave {
-    fn new(readings: Vec<Reading>) -> Self {
+    fn new(mut readings: Vec<Reading>) -> Self {
         let mut occupied = HashSet::new();
         let mut min_x: isize = isize::MAX;
         let mut max_x: isize = isize::MIN;
         let mut min_y: isize = isize::MAX;
         let mut max_y: isize = isize::MIN;
+
+        readings.sort_by_key(|reading| reading.sensor.x);
 
         for reading in &readings {
             if reading
@@ -154,6 +155,43 @@ impl Cave {
         counter
     }
 
+    fn check_row(&self, y: isize) -> Point {
+        let mut row: Vec<[isize; 2]> = Vec::new();
+        for reading in &self.readings {
+            let y_diff = y.abs_diff(reading.sensor.y);
+            let row_range = reading.range as isize - y_diff as isize;
+            if row_range <= 0 {
+                continue;
+            }
+
+            row.push([reading.sensor.x - row_range, reading.sensor.x + row_range]);
+        }
+        dbg!(&row);
+        row.sort_by_key(|range| range[0]);
+        // row.sort();
+
+        let mut ranges_to_pop: Vec<usize> = Vec::new();
+        for (i, ranges) in row.windows(2).enumerate() {
+            if ranges[1][1] < ranges[0][1] {
+                ranges_to_pop.push(i + 1);
+            }
+        }
+        for i in ranges_to_pop.into_iter().rev() {
+            row.remove(i);
+        }
+        dbg!(&row);
+
+        for ranges in row.windows(2) {
+            if ranges[1][0] - ranges[0][1] == 2 {
+                return Point {
+                    x: ranges[0][1] + 1,
+                    y,
+                };
+            }
+        }
+        panic!()
+    }
+
     fn find_distress_beacon(&self) -> Point {
         use indicatif::{ProgressBar, ProgressStyle};
         use rayon::prelude::*;
@@ -161,6 +199,7 @@ impl Cave {
         use std::time::Instant;
 
         const MIN_COORDINATE: isize = 0;
+        // const MAX_COORDINATE: isize = 20;
         const MAX_COORDINATE: isize = 4000000;
 
         let start = Instant::now();
@@ -178,20 +217,52 @@ impl Cave {
                 if result.lock().unwrap().is_some() {
                     return;
                 }
-                'outer: for x in MIN_COORDINATE..=MAX_COORDINATE {
-                    let point = Point { x, y };
 
-                    if self.occupied.contains(&point) {
+                let mut row: Vec<[isize; 2]> = Vec::new();
+                for reading in &self.readings {
+                    let y_diff = y.abs_diff(reading.sensor.y);
+                    let row_range = reading.range as isize - y_diff as isize;
+                    if row_range <= 0 {
                         continue;
                     }
-                    for reading in &self.readings {
-                        if point.distance(&reading.sensor) <= reading.range {
-                            continue 'outer;
-                        }
-                    }
-                    *result.lock().unwrap() = Some(point);
-                    return;
+
+                    row.push([reading.sensor.x - row_range, reading.sensor.x + row_range]);
                 }
+                
+
+                // Remove fully overlapped ranges
+                row.sort_by_key(|range| range[0]);
+                let mut ranges_to_pop: Vec<usize> = Vec::new();
+                for (i, ranges) in row.windows(2).enumerate() {
+                    if ranges[1][1] < ranges[0][1] {
+                        ranges_to_pop.push(i + 1);
+                    }
+                }
+                let row_clone = row.clone();
+                for i in ranges_to_pop.into_iter().rev() {
+                    row.remove(i);
+                }
+
+                'outer: for ranges in row.windows(2) {
+                    if ranges[1][0] - ranges[0][1] == 2 {
+                        let point = Point {
+                            x: ranges[0][1] + 1,
+                            y,
+                        };
+                        
+                        // idc anymore
+                        for reading in &self.readings {
+                            if point.distance(&reading.sensor) <= reading.range {
+                                break 'outer;
+                            }
+                        }
+
+                        dbg!(&row_clone, &row, point);
+                        *result.lock().unwrap() = Some(point);
+                        return;
+                    }
+                }
+
                 bar.inc(1);
             });
 
@@ -209,8 +280,8 @@ impl Cave {
 }
 
 fn main() {
-    // let input = rusty_xmas::load_input!();
-    let input = std::fs::read_to_string("input.txt").unwrap();
+    let input = rusty_xmas::load_input!();
+    // let input = std::fs::read_to_string("input.txt").unwrap();
     let input: Vec<Vec<isize>> = input
         .lines()
         .map(|line| {
@@ -229,7 +300,10 @@ fn main() {
     let cave = Cave::new(readings);
     println!("Part 1: {}", cave.get_row(2000000));
 
+    // dbg!(cave.check_row(2062167));
+    // return;
     let distress_beacon = cave.find_distress_beacon();
+    dbg!(distress_beacon);
     println!(
         "Part 2: {}",
         distress_beacon.x * 4000000 + distress_beacon.y
