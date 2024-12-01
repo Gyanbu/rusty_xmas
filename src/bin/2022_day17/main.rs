@@ -32,7 +32,7 @@ impl Tetris {
 
         let mut i = 0;
         while i < blocks {
-        // for i in 0..blocks {
+            // for i in 0..blocks {
             let mut block = match i % 5 {
                 0 => {
                     // ----
@@ -146,7 +146,11 @@ impl Tetris {
                         point.y -= 1;
                     }
                 } else {
-                    let minmax_block_y = block.iter().minmax_by_key(|point| point.y).into_option().unwrap();
+                    let minmax_block_y = block
+                        .iter()
+                        .minmax_by_key(|point| point.y)
+                        .into_option()
+                        .unwrap();
                     for _ in y..=minmax_block_y.1.y {
                         board.push([false; 7]);
                         y += 1;
@@ -161,7 +165,12 @@ impl Tetris {
                             let height_increase = y + trunacated - previous[1];
                             let remaining_blocks = blocks - i;
                             let cycles_to_skip = remaining_blocks / cycle_length;
-                            dbg!(cycle_length, height_increase, remaining_blocks, cycles_to_skip);
+                            dbg!(
+                                cycle_length,
+                                height_increase,
+                                remaining_blocks,
+                                cycles_to_skip
+                            );
                             trunacated += cycles_to_skip * height_increase;
                             i += cycles_to_skip * cycle_length;
                         } else {
@@ -214,7 +223,6 @@ fn main() {
     let tetris = Tetris::new(input);
     let height = tetris.play(2022);
     println!("Part 1: {}", height);
-
 
     let height = tetris.play(1_000_000_000_000);
     println!("Part 2: {}", height);
