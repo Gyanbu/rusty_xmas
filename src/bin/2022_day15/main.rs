@@ -228,7 +228,6 @@ impl Cave {
 
                     row.push([reading.sensor.x - row_range, reading.sensor.x + row_range]);
                 }
-                
 
                 // Remove fully overlapped ranges
                 row.sort_by_key(|range| range[0]);
@@ -249,7 +248,7 @@ impl Cave {
                             x: ranges[0][1] + 1,
                             y,
                         };
-                        
+
                         // idc anymore
                         for reading in &self.readings {
                             if point.distance(&reading.sensor) <= reading.range {
