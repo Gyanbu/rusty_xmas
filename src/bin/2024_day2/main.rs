@@ -11,10 +11,10 @@ fn main() {
         }).collect::<Vec<u32>>()
     }).collect();
 
-    dbg!(&reports);
+    // dbg!(&reports);
 
     let mut safe_readings: usize = 0;
-    for report in reports {
+    'reports: for report in reports {
         let ordering = report[0].cmp(&report[1]);
         if ordering.is_eq() {
             continue;
@@ -23,12 +23,12 @@ fn main() {
             match ordering {
                 Ordering::Less => {
                     if readings[1] <= readings[0] || MAX_STEP_SIZE < readings[1] - readings[0] {
-                        continue;
+                        continue 'reports;
                     }
                 },
                 Ordering::Greater => {
                     if readings[0] <= readings[1] || MAX_STEP_SIZE < readings[0] - readings[1] {
-                        continue;
+                        continue 'reports;
                     }
                 },
                 Ordering::Equal => unreachable!(),
