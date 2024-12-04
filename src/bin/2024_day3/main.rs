@@ -74,7 +74,7 @@ fn main() {
                 do_progress = 0;
                 enabled = true;
                 continue;
-            } 
+            }
         } else {
             do_progress = 0;
         }
@@ -84,7 +84,7 @@ fn main() {
                 dont_progress = 0;
                 enabled = false;
                 continue;
-            } 
+            }
         } else {
             dont_progress = 0;
         }
