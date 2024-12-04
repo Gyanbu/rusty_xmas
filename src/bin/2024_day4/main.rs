@@ -49,15 +49,46 @@ impl Board {
             }
             unsafe {
                 for i in 1..4 {
-                    let c = self.board[y.checked_add_signed(vector[1] * i as isize).unwrap_unchecked()][x.checked_add_signed(vector[0] * i as isize).unwrap_unchecked()];
+                    let c = self.board[y
+                        .checked_add_signed(vector[1] * i as isize)
+                        .unwrap_unchecked()][x
+                        .checked_add_signed(vector[0] * i as isize)
+                        .unwrap_unchecked()];
                     if c != i {
                         continue 'vectors;
-                    }  
+                    }
                 }
             }
             words += 1;
         }
         words
+    }
+
+    fn is_x_mas(&self, x: usize, y: usize) -> bool {
+        if x == 0 || x == self.width - 1 || y == 0 || y == self.height - 1 {
+            return false;
+        }
+
+        const VECTORS: [[isize; 2]; 4] = [[1, 1], [1, -1], [-1, -1], [-1, 1]];
+        let mut neighbors = Vec::new();
+        unsafe {
+            for vector in VECTORS {
+                neighbors.push(
+                    self.board[y.checked_add_signed(vector[1]).unwrap_unchecked()]
+                        [x.checked_add_signed(vector[0]).unwrap_unchecked()],
+                );
+            }
+        }
+        for i in 0..4 {
+            if neighbors[i % 4] == 1
+                && neighbors[(i + 1) % 4] == 1
+                && neighbors[(i + 2) % 4] == 3
+                && neighbors[(i + 3) % 4] == 3
+            {
+                return true;
+            }
+        }
+        false
     }
 }
 
@@ -78,7 +109,7 @@ fn main() {
                 .collect()
         })
         .collect();
-    
+
     // for line in &board {
     //     println!("{line:?}");
     // }
@@ -93,4 +124,14 @@ fn main() {
         }
     }
     println!("Part 1: {}", answer);
+
+    let mut answer: usize = 0;
+    for (y, row) in board.iter().enumerate() {
+        for (x, c) in row.iter().enumerate() {
+            if *c == 2 {
+                answer += board.is_x_mas(x, y) as usize;
+            }
+        }
+    }
+    println!("Part 2: {}", answer);
 }
