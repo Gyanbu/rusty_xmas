@@ -26,15 +26,16 @@ fn main() {
         .into_iter()
         .map(|batch| batch.split(',').map(|num| num.parse().unwrap()).collect())
         .collect();
-    
+
     let mut part1_answer: usize = 0;
     'batches: for batch in &batches {
         let mut printed = Vec::new();
         for page in batch {
             if let Some(rules) = rules_map.get(&page) {
-                if !rules.iter().all(|rule| {
-                    !batch.contains(rule) || printed.contains(rule)
-                }) {
+                if !rules
+                    .iter()
+                    .all(|rule| !batch.contains(rule) || printed.contains(rule))
+                {
                     continue 'batches;
                 }
             }
@@ -44,7 +45,6 @@ fn main() {
     }
     println!("Part 1: {}", part1_answer);
 
-
     let mut answer: usize = 0;
     for batch in batches {
         let mut batch = batch.clone();
@@ -53,9 +53,10 @@ fn main() {
             let mut printed = Vec::new();
             for (p, page) in batch.clone().iter().enumerate() {
                 if let Some(rules) = rules_map.get(&page) {
-                    if !rules.iter().all(|rule| {
-                        !batch.contains(rule) || printed.contains(rule)
-                    }) {
+                    if !rules
+                        .iter()
+                        .all(|rule| !batch.contains(rule) || printed.contains(rule))
+                    {
                         batch.swap(p, p + 1);
                         modified = true;
                     }
