@@ -200,12 +200,12 @@ impl Lab {
     }
 
     fn count_loops(&mut self) -> usize {
-        let board_original = self.board_original.clone();
+        let board = self.board.clone();
         let mut loops: usize = 0;
-        for (y, row) in board_original.iter().enumerate() {
+        for (y, row) in board.iter().enumerate() {
             for (x, space) in row.iter().enumerate() {
                 print!("{}/{}\r", y * self.board_width + x, self.board_width * self.board_height);
-                if *space == Space::Empty {
+                if *space == Space::Visited && Point::new(x, y) != self.guard_location_original {
                     self.reset();
                     self.board[y][x] = Space::Obstacle;
                     if !self.simulate_guard() {
