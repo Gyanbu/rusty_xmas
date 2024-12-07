@@ -1,4 +1,6 @@
-#[derive(PartialEq, Eq)]
+use std::collections::HashSet;
+
+#[derive(PartialEq, Eq, Clone, Copy)]
 enum Space {
     Empty = 0,
     Obstacle = 1,
@@ -18,7 +20,7 @@ impl From<char> for Space {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Vector {
     delta_x: isize,
     delta_y: isize,
@@ -41,6 +43,7 @@ impl Vector {
     }
 }
 
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 struct Point {
     x: usize,
     y: usize,
@@ -65,7 +68,9 @@ impl Point {
 struct Lab {
     board_width: usize,
     board_height: usize,
+    board_original: Vec<Vec<Space>>,
     board: Vec<Vec<Space>>,
+    guard_location_original: Point,
     guard_location: Point,
     guard_vector: Vector,
 }
@@ -90,65 +95,67 @@ impl Lab {
         Lab {
             board_width,
             board_height,
+            board_original: board.clone(),
             board,
+            guard_location_original: guard_location.clone(),
             guard_location,
             guard_vector: Vector::new(0, -1),
         }
     }
 
-    fn step_guard(&mut self) -> bool {
-        let next_location = self.guard_location.add_vector(&self.guard_vector);
-        // Check lower bounds
-        if next_location.is_none() {
-            self.board[self.guard_location.y][self.guard_location.x] = Space::Visited;
-            return false;
-        }
-        // Check higher bounds
-        let next_location = next_location.unwrap();
-        if next_location.x >= self.board_width || next_location.y >= self.board_height {
-            self.board[self.guard_location.y][self.guard_location.x] = Space::Visited;
-            return false;
-        }
-        // Move forwards
-        if self.board[next_location.y][next_location.x] != Space::Obstacle {
-            self.board[self.guard_location.y][self.guard_location.x] = Space::Visited;
-            self.board[next_location.y][next_location.x] = Space::Guard;
-            self.guard_location = next_location;
-            return true;
-        }
-
-        // Turn right
-        self.guard_vector.rotate_clockwise();
-        let next_location = self.guard_location.add_vector(&self.guard_vector);
-        // Check lower bounds
-        if next_location.is_none() {
-            self.board[self.guard_location.y][self.guard_location.x] = Space::Visited;
-            return false;
-        }
-        // Check higher bounds
-        let next_location = next_location.unwrap();
-        if next_location.x >= self.board_width || next_location.y >= self.board_height {
-            self.board[self.guard_location.y][self.guard_location.x] = Space::Visited;
-            return false;
-        }
-        // Move forwards
-        if self.board[next_location.y][next_location.x] != Space::Obstacle {
-            self.board[self.guard_location.y][self.guard_location.x] = Space::Visited;
-            self.board[next_location.y][next_location.x] = Space::Guard;
-            self.guard_location = next_location;
-            return true;
-        }
-        panic!()
+    fn reset(&mut self) {
+        self.board = self.board_original.clone();
+        self.guard_location = self.guard_location_original.clone();
+        self.guard_vector = Vector::new(0, -1);
     }
 
-    fn simulate_guard(&mut self) {
+    fn step_guard(&mut self) -> bool {
+        loop {
+            let next_location = self.guard_location.add_vector(&self.guard_vector);
+            // Check lower bounds
+            if next_location.is_none() {
+                self.board[self.guard_location.y][self.guard_location.x] = Space::Visited;
+                return false;
+            }
+            // Check higher bounds
+            let next_location = next_location.unwrap();
+            if next_location.x >= self.board_width || next_location.y >= self.board_height {
+                self.board[self.guard_location.y][self.guard_location.x] = Space::Visited;
+                return false;
+            }
+            // Move forwards
+            if self.board[next_location.y][next_location.x] != Space::Obstacle {
+                self.board[self.guard_location.y][self.guard_location.x] = Space::Visited;
+                self.board[next_location.y][next_location.x] = Space::Guard;
+                self.guard_location = next_location;
+                return true;
+            }
+            // Turn right
+            self.guard_vector.rotate_clockwise();
+            let next_location = self.guard_location.add_vector(&self.guard_vector);
+            // Check lower bounds
+            if next_location.is_none() {
+                self.board[self.guard_location.y][self.guard_location.x] = Space::Visited;
+                return false;
+            }
+        }
+    }
+
+    fn simulate_guard(&mut self) -> bool {
         // use std::{thread::sleep, time::Duration};
         // self.print_board();
+        let mut guard_visited: HashSet<(Point, Vector)> = HashSet::new();
         while self.step_guard() {
+            let guard = (self.guard_location, self.guard_vector);
+            if guard_visited.contains(&guard) {
+                return false;
+            }
+            guard_visited.insert(guard);
             // self.print_board();
             // sleep(Duration::from_millis(100));
         }
         // self.print_board();
+        true
     }
 
     fn print_board(&self) {
@@ -185,7 +192,30 @@ impl Lab {
     }
 
     fn count_visited_spaces(&self) -> usize {
-        self.board.iter().flatten().filter(|space| **space == Space::Visited).count()
+        self.board
+            .iter()
+            .flatten()
+            .filter(|space| **space == Space::Visited)
+            .count()
+    }
+
+    fn count_loops(&mut self) -> usize {
+        let board_original = self.board_original.clone();
+        let mut loops: usize = 0;
+        for (y, row) in board_original.iter().enumerate() {
+            for (x, space) in row.iter().enumerate() {
+                print!("{}/{}\r", y * self.board_width + x, self.board_width * self.board_height);
+                if *space == Space::Empty {
+                    self.reset();
+                    self.board[y][x] = Space::Obstacle;
+                    if !self.simulate_guard() {
+                        loops += 1;
+                    }
+                }
+            }
+        }
+        println!();
+        loops
     }
 }
 
@@ -197,4 +227,7 @@ fn main() {
     lab.simulate_guard();
     let answer = lab.count_visited_spaces();
     println!("Part 1: {}", answer);
+
+    let answer = lab.count_loops();
+    println!("Part 2: {}", answer);
 }
