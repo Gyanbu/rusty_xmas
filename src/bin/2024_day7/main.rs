@@ -45,7 +45,7 @@ impl Equation {
         // println!();
         result
     }
-    
+
     fn process_operations_part2(&self, operations: &Vec<usize>) -> usize {
         let mut result: usize = self.numbers[0];
         // println!("{:?}", operations);
@@ -61,7 +61,7 @@ impl Equation {
                     result = result * 10usize.pow(num.ilog10() + 1) + num;
                     // result = (result.to_string() + &num.to_string()).parse().unwrap();
                 }
-                _ => panic!()
+                _ => panic!(),
             }
         }
         // println!("{}\n", result);
