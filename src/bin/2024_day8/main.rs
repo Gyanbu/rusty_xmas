@@ -71,7 +71,7 @@ fn main() {
         {
             antinode_map[beacon_pair[0].y][beacon_pair[0].x] = true;
             antinode_map[beacon_pair[1].y][beacon_pair[1].x] = true;
-            
+
             let mut vector = beacon_pair[0].vector_between_points(&beacon_pair[1]);
 
             let mut next_location = Some(beacon_pair[1].clone());
