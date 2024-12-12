@@ -12,7 +12,7 @@ pub struct Vector {
 }
 
 impl Vector {
-    pub fn new(delta_x: isize, delta_y: isize) -> Vector {
+    pub const fn new(delta_x: isize, delta_y: isize) -> Vector {
         Vector { delta_x, delta_y }
     }
 
@@ -40,11 +40,11 @@ pub struct Point {
 }
 
 impl Point {
-    pub fn default() -> Point {
+    pub const fn default() -> Point {
         Point { x: 0, y: 0 }
     }
 
-    pub fn new(x: usize, y: usize) -> Point {
+    pub const fn new(x: usize, y: usize) -> Point {
         Point { x, y }
     }
 
