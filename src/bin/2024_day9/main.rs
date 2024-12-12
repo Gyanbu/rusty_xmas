@@ -61,7 +61,12 @@ fn main() {
         // let DEBUG = file_block.0.unwrap();
         // true;
         let mut l = 0usize;
-        let mut r = data.iter().enumerate().find_position(|block| *block.1 == file_block).unwrap().0;
+        let mut r = data
+            .iter()
+            .enumerate()
+            .find_position(|block| *block.1 == file_block)
+            .unwrap()
+            .0;
         while l < r {
             if data[l].0.is_some() || data[l].1 < file_block.1 {
                 l += 1;
