@@ -89,4 +89,21 @@ fn main() {
         answer += locations.len();
     }
     println!("Part 1: {}", answer);
+
+    let mut answer: usize = 0;
+    let trailheads = board.get_trailheads();
+    for trailhead in trailheads {
+        let mut locations: Vec<Point> = vec![trailhead];
+        for height in 1..=9 {
+            let mut new_locations: Vec<Point> = Vec::new();
+            for location in locations.drain(..) {
+                for neighbor in board.get_neighbors(location, height).iter() {
+                    new_locations.push(*neighbor);
+                }
+            }
+            locations = mem::take(&mut new_locations);
+        }
+        answer += locations.len();
+    }
+    println!("Part 2: {}", answer);
 }
