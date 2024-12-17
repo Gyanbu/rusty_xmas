@@ -1,4 +1,5 @@
-use std::{mem, thread::sleep_ms};
+use std::mem;
+use itertools::Itertools;
 use rusty_xmas::{Point, Vector};
 
 const VECTORS: &[Vector] = &[
@@ -89,6 +90,133 @@ impl Garden {
         }
         perimeter * region.len()
     }
+
+    fn get_region_fence_sale_price(region: &Vec<Point>) -> usize {
+        let mut sides = 0;
+
+        // Count horizontal sides
+        let mut x_of_up_fence: usize = usize::MAX;
+        let mut x_of_down_fence: usize = usize::MAX;
+        let mut y: usize = usize::MAX;
+        let mut up = false;
+        let mut down = false;
+        for plot in region.iter().sorted_unstable_by_key(|point| point.y * region.len() + point.x) {
+            // println!("{:?}", plot);
+            if y != plot.y {
+                y = plot.y;
+                x_of_up_fence = plot.x;
+                x_of_down_fence = plot.x;
+                up = false;
+                down = false;
+            }
+
+            // Check lower bounds
+            if let Some(up_neighbor) = plot.add_vector(&VECTORS[0]) {
+                // If up is empty...
+                if !region.contains(&up_neighbor) {
+                    // ...check if it is continuation
+                    if !up || plot.x - 1 != x_of_up_fence {
+                        up = true;
+                        sides += 1;
+                    }
+                    x_of_up_fence = plot.x;
+                } else {
+                    up = false;
+                }
+            } else {
+                if !up || plot.x - 1 != x_of_up_fence {
+                    up = true;
+                    sides += 1;
+                }
+                x_of_up_fence = plot.x;
+            }
+
+            // Check lower bounds
+            if let Some(down_neighbor) = plot.add_vector(&VECTORS[2]) {
+                // If down is empty...
+                if !region.contains(&down_neighbor) {
+                    // ...check if it is continuation
+                    if !down || plot.x - 1 != x_of_down_fence {
+                        down = true;
+                        sides += 1;
+                    }
+                    x_of_down_fence = plot.x;
+                } else {
+                    down = false;
+                }
+            } else {
+                if !down || plot.x - 1 != x_of_down_fence {
+                    down = true;
+                    sides += 1;
+                }
+                x_of_down_fence = plot.x;
+            }
+        }
+        // let DEBUG_horizontal_sides = sides;
+        // println!("Horizontal sides: {}", DEBUG_horizontal_sides);
+        
+        // Count vertical sides
+        let mut y_of_left_fence: usize = usize::MAX;
+        let mut y_of_right_fence: usize = usize::MAX;
+        let mut x: usize = usize::MAX;
+        let mut left = false;
+        let mut right = false;
+        for plot in region.iter().sorted_unstable_by_key(|point| point.x * region.len() + point.y) {
+            // println!("{:?}", plot);
+            if x != plot.x {
+                x = plot.x;
+                y_of_left_fence = plot.y;
+                y_of_right_fence = plot.y;
+                left = false;
+                right = false;
+            }
+
+            // Check lower bounds
+            if let Some(left_neighbor) = plot.add_vector(&VECTORS[3]) {
+                // If left is empty...
+                if !region.contains(&left_neighbor) {
+                    // ...check if it is continuation
+                    if !left || plot.y - 1 != y_of_left_fence {
+                        left = true;
+                        sides += 1;
+                    }
+                    y_of_left_fence = plot.y;
+                } else {
+                    left = false;
+                }
+            } else {
+                if !left || plot.y - 1 != y_of_left_fence {
+                    left = true;
+                    sides += 1;
+                }
+                y_of_left_fence = plot.y;
+            }
+
+            // Check lower bounds
+            if let Some(right_neighbor) = plot.add_vector(&VECTORS[1]) {
+                // If right is empty...
+                if !region.contains(&right_neighbor) {
+                    // ...check if it is continuation
+                    if !right || plot.y - 1 != y_of_right_fence {
+                        right = true;
+                        sides += 1;
+                    }
+                    y_of_right_fence = plot.y;
+                } else {
+                    right = false;
+                }
+            } else {
+                if !right || plot.y - 1 != y_of_right_fence {
+                    right = true;
+                    sides += 1;
+                }
+                y_of_right_fence = plot.y;
+            }
+        }
+        // let DEBUG_vertical_sides = sides - DEBUG_horizontal_sides;
+        // println!("Vertical sides: {}", DEBUG_vertical_sides);
+        sides * region.len()
+    }
 }
 
 fn main() {
@@ -101,8 +229,14 @@ fn main() {
     let garden = Garden::new(garden);
     let regions = garden.get_regions();
     let mut answer = 0;
-    for region in regions {
-        answer += Garden::get_region_fence_price(&region);
+    for region in &regions {
+        answer += Garden::get_region_fence_price(region);
     }
     println!("Part 1: {}", answer);
+
+    let mut answer = 0;
+    for region in &regions {
+        answer += Garden::get_region_fence_sale_price(region);
+    }
+    println!("Part 2: {}", answer);
 }
